@@ -2,7 +2,8 @@ import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import {Link} from 'react-router-dom'
-import { useUserContext } from './UserContext'
+import { useUserContext } from './UserContext';
+
 const navigation = [
   { name: 'Generate Ticket', to: "/inputform", current: false},
   { name: 'View Ticket Status ', to: "/viewstatus", current: false },
@@ -13,8 +14,11 @@ function classNames(...classes) {
 }
 
 export default function Header() {
-  const {userData} = useUserContext();
+  const {userData, setIsAuthenticated} = useUserContext();
   const Name = userData && userData.length > 0 && userData[0].userName ? userData[0].userName : null;
+  const logout= ()=>{
+    setIsAuthenticated(false);
+  }
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }) => (
@@ -96,6 +100,7 @@ export default function Header() {
                           <Link
                             to="/login"
                             className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                            onClick={logout()}
                           >
                             Signout
                           </Link>

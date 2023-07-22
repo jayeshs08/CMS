@@ -5,8 +5,8 @@ import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import {Link} from 'react-router-dom'
 const navigation = [
-  { name: 'View All', to: "/viewall", current: false},
-  { name: 'View  Pending', to: "/viewpending", current: false },
+  { name: 'View All', to: "/resolverviewall", current: false},
+  { name: 'View  Pending', to: "/resolver", current: false },
 ]
 
 function classNames(...classes) {

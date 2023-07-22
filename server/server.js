@@ -47,32 +47,63 @@ app.post('/api/requests', (req, res) => {
 
 //fetching ticket status
 // Define an API endpoint to fetch ticket status
-app.post('/api/fetch', (req, res) => {
-  const { ticketNum } = req.body;
-
-  // Execute the MySQL query
-  const query = `SELECT * FROM issueTB WHERE ticketNum = ?`;
-
-  pool.getConnection((err, connection) => {
-    if (err) {
-      console.error('Error connecting to MySQL database:', err);
-      res.status(500).json({ error: 'Error fetching ticket status' });
+app.post('/api/fetch', (req,res)=>{
+  const {userId} = req.body;
+  console.log("Res id:");
+  console.log(userId);
+  const query = 'SELECT * FROM issueTB WHERE emailId = ?;' ;
+  pool.getConnection((err, connection) =>{
+    if(err){
+      console.log("Error connecting to db");
+      res.status(500).json({error: 'Error connecting to DB'});
       return;
     }
 
-    connection.query(query, [ticketNum], (err, result) => {
-      connection.release(); // Release the connection back to the pool
+    connection.query(query, [userId], (err,result) => {
+      connection.release();
 
-      if (err) {
-        console.error('Error executing MySQL query:', err);
-        res.status(500).json({ error: 'Error in sql' });
+      if(err)
+      {
+        console.log("error in executing sql query");
+        res.status(500).json({error: 'Error in executing query'});
+        return;
+      }
+      console.log ("Server sending result:");
+      console.log(result);
+      res.json({data:result});
+    })
+  })
+})
+
+app.post('/api/delete', (req,res)=>{
+  const {ticketNum,status} = req.body;
+  console.log(ticketNum);
+
+  const query = 'UPDATE issuetb SET status= ? WHERE ticketNum=?' ;
+  const updateQuery='SELECT * FROM issuetb WHERE ticketNum=?';
+  pool.getConnection((err, connection) =>{
+    if(err){
+      console.log("Error connecting to db");
+      res.status(500).json({error: 'Error connecting to DB'});
+      return;
+    }
+
+      connection.query(query, [status,ticketNum], (err,result) => {
+      connection.release();
+      if(err)
+      {
+        console.log("error in executing sql query");
+        res.status(500).json({error: 'Error in executing query'});
         return;
       }
 
-      res.json({ data: result });
-    });
-  });
-});
+      res.json({data:result});
+    })
+  })
+})
+
+
+
 app.post('/api/members', (req, res) => {
 
   // Execute the MySQL query
@@ -332,6 +363,34 @@ app.post('/api/resolverdata', (req,res) => {
     console.log(results);
     res.json({data:results});
   }
+  })
+})
+
+app.post('/api/resolverviewall', (req,res)=>{
+  const {resId} = req.body;
+  console.log("Res id:");
+  console.log(resId);
+  const query = 'SELECT * FROM issueTB WHERE assignTo = ?;' ;
+  pool.getConnection((err, connection) =>{
+    if(err){
+      console.log("Error connecting to db");
+      res.status(500).json({error: 'Error connecting to DB'});
+      return;
+    }
+
+    connection.query(query, [resId], (err,result) => {
+      connection.release();
+
+      if(err)
+      {
+        console.log("error in executing sql query");
+        res.status(500).json({error: 'Error in executing query'});
+        return;
+      }
+      console.log ("Server sending result:");
+      console.log(result);
+      res.json({data:result});
+    })
   })
 })
 

@@ -3,6 +3,7 @@ import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "./UserContext";
+import { useCookies } from "react-cookie";
 
 const Login = () => {
   const [userName, setUserName] = useState("");
@@ -20,11 +21,11 @@ const Login = () => {
       });
       console.log(response.data);
       if (response.data.success) {
-        toast.success("Login successful");
+        toast.success("Login Successful!");
         console.log("authentication successful");
         //set user email
         setUserMail(userName);
-
+        setIsAuthenticated(true);
         
         // Handle navigation based on the role received from the server
         if (response.data.role === "admin") {

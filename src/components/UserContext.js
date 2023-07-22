@@ -48,6 +48,24 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    const storedUserData = localStorage.getItem('userData');
+    console.log("Stored user data in localstorage:");
+    console.log(storedUserData);
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
+
+    const storedIsAuthenticated = localStorage.getItem('isAuthenticated');
+    if (storedIsAuthenticated) {
+      setIsAuthenticated(JSON.parse(storedIsAuthenticated));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('userData', JSON.stringify(userData));
+  }, [userData]);
+
+  useEffect(() => {
     if (userMail && userRole) {
       // Fetch user data when userEmail changes
       fetchUserData(userMail);
@@ -55,8 +73,12 @@ export const UserProvider = ({ children }) => {
   }, [userMail]);
 
 
+  useEffect(() => {
+    localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated));
+  }, [isAuthenticated]);
+
   return (
-    <UserContext.Provider value={{ loginName, setLoginName,userData, userMail, setUserMail, setUserRole }}>
+    <UserContext.Provider value={{ loginName, setLoginName,userData, userMail, setUserMail, setUserRole, isAuthenticated, setIsAuthenticated }}>
       {children}
     </UserContext.Provider>
   );
