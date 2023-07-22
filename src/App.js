@@ -2,7 +2,7 @@ import React from 'react';
 import Header from './components/Header';
 import InputForm from './components/InputForm';
 import Footer from './components/Footer';
-import { BrowserRouter as Router, Routes,Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes,Route, Navigate } from 'react-router-dom';
 import ViewStatus from './components/ViewStatus';
 import Admin from './components/Admin';
 import AdminHeader from './components/AdminHeader';
@@ -12,6 +12,7 @@ import Login from './components/Login'
 import Resolver from './components/Resolver';
 import IssueDescription from './components/IssueDescription';
 import ResolverHeader from './components/ResolverHeader';
+import { useUserContext } from './components/UserContext';
 
 function App() {
   return (
@@ -20,11 +21,9 @@ function App() {
         <Routes>
           <Route exact path="/" element={
           <>
-          <Header/>
-          <InputForm/>
+          <Login/>
           </>
           } />
-
 
           <Route exact path="/inputform" element={
             <>
@@ -32,7 +31,6 @@ function App() {
             <InputForm/>
             </>
           } />
-
 
           <Route exact path="/viewstatus" element={
           <>
@@ -44,21 +42,18 @@ function App() {
 
           <Route exact path="/login" element={
           <>
-          <Header/>
           <Login/>
           
           </>
           } />
           <Route exact path="viewstatus/login" element={
           <>
-          <Header/>
           <Login/>
           
           </>
           } />
           <Route exact path="inputform/login" element={
           <>
-          <Header/>
           <Login/>
           
           </>

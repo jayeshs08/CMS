@@ -8,7 +8,7 @@ const Login = () => {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const {setUserMail, setUserRole } = useUserContext();
+  const {setUserMail, setUserRole, setIsAuthenticated } = useUserContext();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +24,7 @@ const Login = () => {
         console.log("authentication successful");
         //set user email
         setUserMail(userName);
+
         
         // Handle navigation based on the role received from the server
         if (response.data.role === "admin") {

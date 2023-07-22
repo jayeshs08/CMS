@@ -7,6 +7,7 @@ export const UserProvider = ({ children }) => {
   const [userMail, setUserMail]=useState('');
   const [userData, setUserData] = useState([]);
   const [userRole, setUserRole] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   // Function to fetch user data using the email
   const fetchUserData = async (userMail) => {
     try {

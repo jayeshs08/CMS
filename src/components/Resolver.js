@@ -71,7 +71,7 @@ export default function Resolver()
   };
 
   return(
-    <div className='resolver h-[350px]'>
+    <div className='resolver h-[650px]'>
           {loading ? (<div>LOADING . . . . </div>):
             resData &&
     <div className="flex flex-col mt-[5%] mx-[10%]">
@@ -97,7 +97,7 @@ export default function Resolver()
                     scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase"
                   >
-                        VIEW
+                    VIEW
                   </th>
                 </tr>
               </thead>
@@ -166,12 +166,7 @@ export default function Resolver()
                   >
                     Status
                   </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase"
-                  >
-                    Description
-                  </th>
+                  
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -185,12 +180,37 @@ export default function Resolver()
                   <td className={`px-6 py-4 text-sm text-gray-800 whitespace-nowrap ${
                     ticket.status === 'Pending' ? 'font-bold font-serif text-red-400  ' : 'font-serif font-bold text-green-500'
                     }`}>{ticket.status}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.description}</td>
                 </tr>
               ))}
               </tbody>
             </table>
           </div>
+
+        <div className="overflow-x-scroll lg:overflow-hidden border rounded-lg mt-[30px]">
+          <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
+                  >
+                    Description
+                  </th>
+                  
+                </tr>
+              </thead>
+              
+              <tbody className="divide-y divide-gray-200">
+              {ticketData.map(ticket => (
+                <tr key={ticket.ticketNum}>
+                 <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.description}</td>
+                </tr>
+              ))}
+              </tbody>
+           </table>
+        </div>   
+
+
         </div>
       </div>
     </div>
