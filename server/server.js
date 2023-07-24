@@ -74,6 +74,33 @@ app.post('/api/fetch', (req,res)=>{
     })
   })
 })
+//update status to done by resolver
+app.post('/api/updateStatus', (req,res)=>{
+  const {ticketNum,status} = req.body;
+
+  // const query = 'SELECT * FROM issueTB WHERE ticketNum = ?;' ;
+  const query = 'UPDATE issuetb SET status= ?, resolvedTime= NOW() WHERE ticketNum = ?;' ;
+  pool.getConnection((err, connection) =>{
+    if(err){
+      console.log("Error connecting to db");
+      res.status(500).json({error: 'Error connecting to DB'});
+      return;
+    }
+
+    connection.query(query, [status,ticketNum], (err,result) => {
+      connection.release();
+
+      if(err)
+      {
+        console.log("error in executing sql query");
+        res.status(500).json({error: 'Error in executing query'});
+        return;
+      }
+
+      res.json({data:result});
+    })
+  })
+})
 
 app.post('/api/delete', (req,res)=>{
   const {ticketNum,status} = req.body;
@@ -301,18 +328,33 @@ app.get('/api/options', (req, res) => {
 app.post('/api/update-issue', (req, res) => {
   const { ticketNum, status, assignto } = req.body;
 
-  // Update the 'assignto' column in the issuetb table
-  const updateQuery = 'UPDATE issuetb SET assignTo = ? ,status= ? WHERE ticketNum = ?';
-  pool.query(updateQuery, [assignto,status, ticketNum], (error, updateResults) => {
+  // Fetch the employee ID based on the selected employee name (assignto)
+  const query = 'SELECT resId FROM resolver WHERE resName = ?';
+  pool.query(query, [assignto], (error, results) => {
     if (error) {
-      console.error('Error updating issue:', error);
-      res.status(500).json({ error: 'Failed to update issue' });
+      console.error('Error fetching employee ID:', error);
+      res.status(500).json({ error: 'Failed to fetch employee ID' });
     } else {
-      console.log('Issue updated successfully');
-      res.status(200).json({ message: 'Issue updated successfully' });
+      if (results.length === 0) {
+        // If the employee ID is not found, respond with an error
+        res.status(404).json({ error: 'Employee not found' });
+      } else {
+        // If the employee ID is found, update the 'assignto' column in the issuetb table
+        const employeeId = results[0].resId;
+        const updateQuery = 'UPDATE issuetb SET assignTo = ? ,status= ? WHERE ticketNum = ?';
+        pool.query(updateQuery, [employeeId, status, ticketNum], (error, updateResults) => {
+          if (error) {
+            console.error('Error updating issue:', error);
+            res.status(500).json({ error: 'Failed to update issue' });
+          } else {
+            console.log('Issue updated successfully');
+            res.status(200).json({ message: 'Issue updated successfully' });
+          }
+        });
+      }
     }
   });
-})
+});
 
 
 app.post('/api/userdata', (req,res) => {

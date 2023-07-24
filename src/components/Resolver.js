@@ -9,30 +9,7 @@ export default function Resolver()
   const [ticketData, setTicketData] = useState(null);
   const [resData, setResData] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // useEffect(()=>{
-  //   console.log("userdata resolver:");
-  //   console.log(userData);
-
-  //   const resId=userData[0].resId;
-
-  //   if(userData && userData[0].resId){
-  //   setLoading(true);
-
-  // axios.post('http://localhost:5000/api/resolver', { resId })
-  //   .then(response => {
-  //     // Set the fetched data in resData state
-  //     console.log("resolver sent request");
-  //     setResData(response.data.data);
-  //     setLoading(false);
-  //   })
-  //   .catch(error => {
-  //     console.log("Error in fetching data from resolver API");
-  //     setLoading(false);
-  //   });
-  // }
-
-  // },[userData])
+  const [viewClicked, setViewClicked] = useState(false);
   
   useEffect(() => {
     console.log("userdata resolver:");
@@ -56,24 +33,49 @@ export default function Resolver()
     } else {
       setLoading(false);
     }
-  }, [userData]);
+
+    
+  }, [userData,ticketData]);
 
   const handleTicketClick = (ticketNum)=>{
     axios.post('http://localhost:5000/api/resolvedata', {ticketNum})
     .then(response => {
       console.log("ticket click executed in resolve");
       setTicketData(response.data.data);
+      setViewClicked(true);
     })
     .catch(error => {
       console.log("Error in executing view button in resolver");
     })
-
   };
 
+  const handleClickComplete = (ticketNum) => {
+    console.log(ticketNum);
+    const status="Done"
+    axios
+      .post('http://localhost:5000/api/updateStatus', { ticketNum,status })
+      .then((response) => {
+        console.log('ticket click executed in resolve');
+  
+        const updatedTicket = response.data.data;
+        setTicketData((prevTicketData) =>
+          prevTicketData.map((ticket) =>
+            ticket.ticketNum === updatedTicket.ticketNum ? updatedTicket : ticket
+          )
+        );
+        setViewClicked(false);
+      })
+      .catch((error) => {
+        console.log('Error in executing view button in resolver');
+      });
+  };
+  
   return(
     <div className='resolver h-[650px]'>
-          {loading ? (<div>LOADING . . . . </div>):
-            resData &&
+          {(loading) ? (
+          <div >LOADING . . . . </div>
+          ):
+            resData.length===0 ?<p className='mt-[5%] mx-[10%]'>You have no active tickets to resolve. </p> :( 
     <div className="flex flex-col mt-[5%] mx-[10%]">
       <div className="overflow-x-auto">
         <div className="p-1.5 w-full inline-block align-middle">
@@ -107,9 +109,9 @@ export default function Resolver()
                   <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">{ticket.ticketNum}</td>
                   {/* <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.status}</td> */}
                   <td className={`px-6 py-4 text-sm text-gray-800 whitespace-nowrap ${
-                    ticket.status === 'Pending' ? 'font-bold font-serif text-red-400  ' : 'font-serif font-bold text-green-500'
-                    }`}>{ticket.status}</td>
-                    <button className='flex items-center text-cyan-700 rounded hover:bg-slate-200' onClick={() => handleTicketClick(ticket.ticketNum)}>View
+                          ticket.status === 'Pending' ? 'font-bold font-serif text-red-400': ticket.status==='Done'?'font-bold font-serif text-green-500' : 'font-serif font-bold text-amber-500'
+                        }`}>{ticket.status}</td>
+                    <button className='px-6 py-4 text-sm font-medium text-cyan-700 rounded hover:bg-slate-200' onClick={() => handleTicketClick(ticket.ticketNum)}>View
                     </button>
                 </tr>
               ))}
@@ -118,11 +120,11 @@ export default function Resolver()
           </div>
         </div>
       </div>
-    </div>
+    </div>)
 }
 
 
-{ticketData &&
+{viewClicked && !loading && ticketData !== null ? (
     <div className="flex flex-col mt-[5%] mx-[10%]">
       <div className="overflow-x-auto">
         <div className="p-1.5 w-full inline-block align-middle">
@@ -210,11 +212,26 @@ export default function Resolver()
            </table>
         </div>   
 
-
+        <div className="mt-6 flex items-center justify-end gap-x-6">
+        {ticketData.map((ticket) => (
+              <button
+                key={ticket.ticketNum}
+                type="submit"
+                className="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={() => handleClickComplete(ticket.ticketNum)}
+              >
+                Task Done
+              </button>
+            ))}
+      </div>
         </div>
       </div>
     </div>
-}
+):(
+  <div></div>
+)}
+
+
     </div>
   )
 }
