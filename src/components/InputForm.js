@@ -2,9 +2,12 @@ import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, {Toaster} from 'react-hot-toast';
+import { useUserContext } from './UserContext'; // Import the useUserContext hook
+
+ 
 
 export default function InputForm() {
-  const [empId,setEmpId]=useState('');
+  const [userId,setUserId]=useState('');
   const [reqBy, setReqBy] = useState('');
   const [reqType, setReqType] = useState('');
   const [description, setDescription] = useState('');
@@ -13,15 +16,35 @@ export default function InputForm() {
   const [emailId,setEmailId]=useState('');
   const [phoneNo,setPhoneNo]=useState('');
   const [status,setStatus]=useState('Pending');
+
+  const { userData } = useUserContext(); // Access user data from the UserContext
+
+
+
+
+
+  useEffect(() => {
+    if (userData.length > 0) {
+      setUserId(userData[0].userId);
+      setReqBy(userData[0].userName);
+      setEmailId(userData[0].userEmail);
+      setPhoneNo(userData[0].userPhone);
+    }
+  }, [userData]);
+
+
+
   useEffect(() => {
     // Generate token number and current date & time
     const generatedticketnum = generateticketnum();
+    
 
     // Set the generated values in the state
     setTicketNum(generatedticketnum);
-  }, []);
-  const handleempid=(e)=>{
-    setEmpId(e.target.value);
+  }, [SubmitEvent ]);
+  
+  const handleuserid=(e)=>{
+    setUserId(e.target.value);
 
   }
 
@@ -53,7 +76,7 @@ export default function InputForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if(empId===""|| !empId)
+    if(userId===""|| !userId)
     {
       toast.error("Invalid Credentials");
     }
@@ -91,7 +114,7 @@ export default function InputForm() {
     // Create an object with the form data
     const requestData = {
       ticketNum,
-      empId,
+      userId,
       emailId,
       reqBy,
       reqType,
@@ -107,16 +130,15 @@ export default function InputForm() {
         console.log('Request submitted successfully:', response.data);
         // Perform any necessary actions upon successful submission
 
-        setEmpId('');
+        setUserId('');
         setReqBy('');
         setReqType('');
         setDescription('');
         setReqCategory('');
         setEmailId('');
         setPhoneNo('');
-      const generatedTicketNum = generateticketnum();
-      setTicketNum(generatedTicketNum);
-
+        const generatedTicketNum = generateticketnum();
+        setTicketNum(generatedTicketNum);
       })
       .catch(error => {
         console.error('Error submitting request:', error);
@@ -160,8 +182,8 @@ export default function InputForm() {
                     id="username"
                     className="block flex-1 border-0 bg-transparent py-1.5 pl-1  placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
                     placeholder="Employee id"
-                    value={empId}
-                    onChange={handleempid} 
+                    value={userId}
+                    onChange={handleuserid} 
                   />
                 </div>
               </div>
