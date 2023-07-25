@@ -101,7 +101,7 @@ const Login = () => {
                     />
                 </div>
                 <a
-                    href="#"
+                    href="/forgot"
                     className="text-xs text-blue-800 hover:underline"
                 >
                     Forget Password?

@@ -6,6 +6,7 @@ import { useUserContext } from './UserContext'
 const navigation = [
   { name: 'View All', to: "/viewall", current: false},
   { name: 'View  Pending', to: "/viewpending", current: false },
+  { name: 'Utilities', to: "/forgotpassword" , current: false}
 ]
 
 function classNames(...classes) {

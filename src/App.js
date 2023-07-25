@@ -16,6 +16,8 @@ import ResolverHeader from './components/ResolverHeader';
 import { useUserContext } from './components/UserContext';
 import Protected from './components/Protected';
 import ResolverViewAll from './components/ResolverViewAll';
+import Forgot from './components/Forgot';
+import ForgotPassword from './components/ForgotPassword';
 
 function App() {
   const {isAuthenticated} = useUserContext();
@@ -51,6 +53,8 @@ function App() {
           </>
           } />
 
+          
+
           <Route exact path="/viewall" element={
           <Protected isAuthenticated={isAuthenticated}>
           <AdminHeader/>
@@ -82,6 +86,20 @@ function App() {
           <AdminHeader/>
           <ViewPending/>
           </Protected>
+          } />
+
+          <Route exact path="/forgotpassword" element={
+          <Protected isAuthenticated={isAuthenticated}>
+          <ForgotPassword/>
+          </Protected>
+          } 
+          />
+
+<Route exact path="/forgot" element={
+          <>
+          <Forgot/>
+          
+          </>
           } />
 
         </Routes>

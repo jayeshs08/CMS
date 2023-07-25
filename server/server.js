@@ -16,7 +16,7 @@ app.use(cors());
 
 // Define an API endpoint to create a request
 app.post('/api/requests', (req, res) => {
-  const {ticketNum,empId, reqBy, emailId,reqType, description, reqCategory, phoneNo,status } = req.body;
+  const {ticketNum,userId, reqBy, emailId,reqType, description, reqCategory, phoneNo,status } = req.body;
 
   // Perform validation if necessary
 
@@ -31,7 +31,7 @@ app.post('/api/requests', (req, res) => {
       return;
     }
 
-    connection.query(query, [ticketNum,empId, reqBy, emailId, reqType, description, reqCategory, phoneNo, status], (err, result) => {
+    connection.query(query, [ticketNum,userId, reqBy, emailId, reqType, description, reqCategory, phoneNo, status], (err, result) => {
       connection.release(); // Release the connection back to the pool
 
       if (err) {
@@ -435,6 +435,40 @@ app.post('/api/resolverviewall', (req,res)=>{
     })
   })
 })
+
+app.post('/api/reset_password', (req, res) => {
+  const { email, password } = req.body;
+  console.log("in reset password endpoint");
+
+  // You should add validation checks for email and password here
+
+  // Execute the MySQL query to update the password
+  const query = 'UPDATE login SET password = ? WHERE email = ?';
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.log('Error connecting to MySQL database:');
+      res.status(500).json({ success: false });
+      return;
+    }
+
+    connection.query(query, [password, email], (error, results) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (error) {
+        console.log('Error executing Reset Password query:', error);
+        res.status(500).json({ success: false });
+        return;
+      }
+
+      if (results.affectedRows > 0) {
+        res.json({ success: true });
+      } else {
+        res.json({ success: false });
+      }
+    });
+  });
+});
 
 // Start the server
 app.listen(port, () => {
