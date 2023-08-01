@@ -53,7 +53,7 @@ export default function Resolver()
     console.log(ticketNum);
     const status="Done"
     axios
-      .post('http://localhost:5000/api/updateStatus', { ticketNum,status })
+      .post('http://localhost:5000/api/updateStatus', { ticketNum,status})
       .then((response) => {
         console.log('ticket click executed in resolve');
   
@@ -97,9 +97,15 @@ export default function Resolver()
                   </th>
                   <th
                     scope="col"
+                    className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
+                  >
+                    Subject
+                  </th>
+                  <th
+                    scope="col"
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase"
                   >
-                    VIEW
+                    View
                   </th>
                 </tr>
               </thead>
@@ -111,6 +117,7 @@ export default function Resolver()
                   <td className={`px-6 py-4 text-sm text-gray-800 whitespace-nowrap ${
                           ticket.status === 'Pending' ? 'font-bold font-serif text-red-400': ticket.status==='Done'?'font-bold font-serif text-green-500' : 'font-serif font-bold text-amber-500'
                         }`}>{ticket.status}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">{ticket.subject}</td>
                     <button className='px-6 py-4 text-sm font-medium text-cyan-700 rounded hover:bg-slate-200' onClick={() => handleTicketClick(ticket.ticketNum)}>View
                     </button>
                 </tr>

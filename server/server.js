@@ -15,14 +15,15 @@ app.use(express.json());
 app.use(cors());
 
 // Define an API endpoint to create a request
+// Define an API endpoint to create a request
 app.post('/api/requests', (req, res) => {
-  const {ticketNum,userId, reqBy, emailId,reqType, description, reqCategory, phoneNo,status } = req.body;
+  const {ticketNum,userId, reqBy, emailId,reqType, description, reqCategory, phoneNo,status, subject } = req.body;
 
   // Perform validation if necessary
 
   // Execute the MySQL query
-  const query = `INSERT INTO issueTB (ticketNum, empId, reqBy, emailId, reqType, description, reqCategory, dateTimeTicket, phoneNo, status) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, now(), ?, ?)`;
+  const query = `INSERT INTO issueTB (ticketNum, empId, reqBy, emailId, reqType, description, reqCategory, dateTimeTicket, phoneNo, status, subject) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, now(), ?, ?, ?)`;
 
   pool.getConnection((err, connection) => {
     if (err) {
@@ -31,7 +32,7 @@ app.post('/api/requests', (req, res) => {
       return;
     }
 
-    connection.query(query, [ticketNum,userId, reqBy, emailId, reqType, description, reqCategory, phoneNo, status], (err, result) => {
+    connection.query(query, [ticketNum,userId, reqBy, emailId, reqType, description, reqCategory, phoneNo, status, subject], (err, result) => {
       connection.release(); // Release the connection back to the pool
 
       if (err) {
@@ -45,13 +46,71 @@ app.post('/api/requests', (req, res) => {
   });
 });
 
-//fetching ticket status
-// Define an API endpoint to fetch ticket status
-app.post('/api/fetch', (req,res)=>{
+app.post('/api/editrequests', (req, res) => {
+  const {emailId, reqType, description, reqCategory, phoneNo,ticketNum } = req.body;
+  // Perform validation if necessary
+
+  // Execute the MySQL query
+  const query = `UPDATE issueTB SET emailId= ?, reqType= ?, description= ?, reqCategory= ?, dateTimeTicket= NOW(), phoneNo= ? 
+                 WHERE ticketNum= ?`;
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error connecting to MySQL database:', err);
+      res.status(500).json({ error: 'Error submitting request' });
+      return;
+    }
+
+    connection.query(query, [emailId, reqType, description, reqCategory, phoneNo, ticketNum], (err, result) => {
+      connection.release(); // Release the connection back to the pool
+
+      if (err) {
+        console.error('Error executing MySQL query:', err);
+        res.status(500).json({ error: 'Error submitting request' });
+        return;
+      }
+
+      res.json({ message: 'Request submitted successfully' });
+    });
+  });
+});
+
+// //fetching ticket status
+// // Define an API endpoint to fetch ticket status
+// app.post('/api/fetch', (req, res) => {
+//   const { ticketNum } = req.body;
+
+//   // Execute the MySQL query
+//   const query = `SELECT * FROM issueTB WHERE ticketNum = ?`;
+
+//   pool.getConnection((err, connection) => {
+//     if (err) {
+//       console.error('Error connecting to MySQL database:', err);
+//       res.status(500).json({ error: 'Error fetching ticket status' });
+//       return;
+//     }
+
+//     connection.query(query, [ticketNum], (err, result) => {
+//       connection.release(); // Release the connection back to the pool
+
+//       if (err) {
+//         console.error('Error executing MySQL query:', err);
+//         res.status(500).json({ error: 'Error in sql' });
+//         return;
+//       }
+
+//       res.json({ data: result });
+//     });
+//   });
+// });
+
+app.post('/api/fetchall', (req,res)=>{
   const {userId} = req.body;
+  const stat1="Active";
+  const stat2="Pending";
   console.log("Res id:");
   console.log(userId);
-  const query = 'SELECT * FROM issueTB WHERE emailId = ?;' ;
+  const query = 'SELECT * FROM issueTB WHERE emailId = ?  AND status=? OR status=? ORDER BY resolvedTime DESC;' ;
   pool.getConnection((err, connection) =>{
     if(err){
       console.log("Error connecting to db");
@@ -59,7 +118,7 @@ app.post('/api/fetch', (req,res)=>{
       return;
     }
 
-    connection.query(query, [userId], (err,result) => {
+    connection.query(query, [userId,stat1,stat2], (err,result) => {
       connection.release();
 
       if(err)
@@ -74,12 +133,13 @@ app.post('/api/fetch', (req,res)=>{
     })
   })
 })
-//update status to done by resolver
-app.post('/api/updateStatus', (req,res)=>{
-  const {ticketNum,status} = req.body;
 
-  // const query = 'SELECT * FROM issueTB WHERE ticketNum = ?;' ;
-  const query = 'UPDATE issuetb SET status= ?, resolvedTime= NOW() WHERE ticketNum = ?;' ;
+app.post('/api/fetch', (req,res)=>{
+  const {userId} = req.body;
+  console.log("Res id:");
+  console.log(userId);
+  stat="Pending"
+  const query = 'SELECT * FROM issueTB WHERE emailId = ? AND status!=? ;' ;
   pool.getConnection((err, connection) =>{
     if(err){
       console.log("Error connecting to db");
@@ -87,7 +147,7 @@ app.post('/api/updateStatus', (req,res)=>{
       return;
     }
 
-    connection.query(query, [status,ticketNum], (err,result) => {
+    connection.query(query, [userId,stat], (err,result) => {
       connection.release();
 
       if(err)
@@ -96,40 +156,12 @@ app.post('/api/updateStatus', (req,res)=>{
         res.status(500).json({error: 'Error in executing query'});
         return;
       }
-
+      console.log ("Server sending result:");
+      console.log(result);
       res.json({data:result});
     })
   })
 })
-
-app.post('/api/delete', (req,res)=>{
-  const {ticketNum,status} = req.body;
-  console.log(ticketNum);
-
-  const query = 'UPDATE issuetb SET status= ? WHERE ticketNum=?' ;
-  const updateQuery='SELECT * FROM issuetb WHERE ticketNum=?';
-  pool.getConnection((err, connection) =>{
-    if(err){
-      console.log("Error connecting to db");
-      res.status(500).json({error: 'Error connecting to DB'});
-      return;
-    }
-
-      connection.query(query, [status,ticketNum], (err,result) => {
-      connection.release();
-      if(err)
-      {
-        console.log("error in executing sql query");
-        res.status(500).json({error: 'Error in executing query'});
-        return;
-      }
-
-      res.json({data:result});
-    })
-  })
-})
-
-
 
 app.post('/api/members', (req, res) => {
 
@@ -160,7 +192,7 @@ app.post('/api/members', (req, res) => {
 app.post('/api/pending', (req, res) => {
 
   // Execute the MySQL query
-  const query = `SELECT * FROM issueTB WHERE Status='pending' `;
+  const query = `SELECT * FROM issueTB WHERE Status='Pending' `;
 
   pool.getConnection((err, connection) => {
     if (err) {
@@ -182,8 +214,6 @@ app.post('/api/pending', (req, res) => {
     });
   });
 });
-
-
 
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
@@ -227,8 +257,36 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-
 app.post('/api/resolver', (req,res)=>{
+  const {resId} = req.body;
+  console.log("Res id:");
+  console.log(resId);
+  const status="Active";
+  const query = 'SELECT * FROM issueTB WHERE assignTo = ? AND status= ?;' ;
+  pool.getConnection((err, connection) =>{
+    if(err){
+      console.log("Error connecting to db");
+      res.status(500).json({error: 'Error connecting to DB'});
+      return;
+    }
+
+    connection.query(query, [resId,status], (err,result) => {
+      connection.release();
+
+      if(err)
+      {
+        console.log("error in executing sql query");
+        res.status(500).json({error: 'Error in executing query'});
+        return;
+      }
+      console.log ("Server sending result:");
+      console.log(result);
+      res.json({data:result});
+    })
+  })
+})
+
+app.post('/api/resolverviewall', (req,res)=>{
   const {resId} = req.body;
   console.log("Res id:");
   console.log(resId);
@@ -356,7 +414,6 @@ app.post('/api/update-issue', (req, res) => {
   });
 });
 
-
 app.post('/api/userdata', (req,res) => {
   const {userMail} = req.body;
   const query = 'SELECT * FROM usertb WHERE userEmail = ?' ;
@@ -373,6 +430,7 @@ app.post('/api/userdata', (req,res) => {
   }
   })
 })
+
 app.post('/api/admindata', (req,res) => {
   const {userMail} = req.body;
   const query = 'SELECT * FROM admintb WHERE adminEmail = ?' ;
@@ -389,6 +447,7 @@ app.post('/api/admindata', (req,res) => {
   }
   })
 })
+
 app.post('/api/resolverdata', (req,res) => {
   const {userMail} = req.body;
   console.log("email in server.js :");
@@ -408,11 +467,13 @@ app.post('/api/resolverdata', (req,res) => {
   })
 })
 
-app.post('/api/resolverviewall', (req,res)=>{
-  const {resId} = req.body;
-  console.log("Res id:");
-  console.log(resId);
-  const query = 'SELECT * FROM issueTB WHERE assignTo = ?;' ;
+app.post('/api/delete', (req,res)=>{
+  const {ticketNum,status} = req.body;
+  console.log(ticketNum);
+  console.log("delete");
+
+  const query = 'UPDATE issuetb SET status= ?, resolvedTime=NOW() WHERE ticketNum=?' ;
+  const updateQuery='SELECT * FROM issuetb WHERE ticketNum=?';
   pool.getConnection((err, connection) =>{
     if(err){
       console.log("Error connecting to db");
@@ -420,7 +481,35 @@ app.post('/api/resolverviewall', (req,res)=>{
       return;
     }
 
-    connection.query(query, [resId], (err,result) => {
+      connection.query(query, [status,ticketNum], (err,result) => {
+      connection.release();
+      if(err)
+      {
+        console.log("error in executing sql query");
+        res.status(500).json({error: 'Error in executing query'});
+        return;
+      }
+
+      res.json({data:result});
+    })
+  })
+})
+
+
+//update status to done by resolver
+app.post('/api/updateStatus', (req,res)=>{
+  const {ticketNum,status} = req.body;
+
+  // const query = 'SELECT * FROM issueTB WHERE ticketNum = ?;' ;
+  const query = 'UPDATE issuetb SET status= ?, resolvedTime= NOW() WHERE ticketNum = ?;' ;
+  pool.getConnection((err, connection) =>{
+    if(err){
+      console.log("Error connecting to db");
+      res.status(500).json({error: 'Error connecting to DB'});
+      return;
+    }
+
+    connection.query(query, [status,ticketNum], (err,result) => {
       connection.release();
 
       if(err)
@@ -429,13 +518,11 @@ app.post('/api/resolverviewall', (req,res)=>{
         res.status(500).json({error: 'Error in executing query'});
         return;
       }
-      console.log ("Server sending result:");
-      console.log(result);
+
       res.json({data:result});
     })
   })
 })
-
 app.post('/api/reset_password', (req, res) => {
   const { email, password } = req.body;
   console.log("in reset password endpoint");
@@ -466,9 +553,10 @@ app.post('/api/reset_password', (req, res) => {
       } else {
         res.json({ success: false });
       }
-    });
-  });
+    });
+  });
 });
+
 
 // Start the server
 app.listen(port, () => {

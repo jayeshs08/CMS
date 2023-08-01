@@ -63,7 +63,7 @@ function ViewPending() {
   return (
     <div className='viewall '>
     <div className="viewpending h-[400px]">
-      {ticketData && (
+      {ticketData && ticketData.length===0 ?<p className='mt-[5%] mx-[10%]'>No Pending tickets to be alloted. </p>:(
         <div className="flex flex-col mt-[5%] mx-[10%]">
           <div className="overflow-x-auto">
             <div className="p-1.5 w-full inline-block align-middle">
@@ -77,17 +77,18 @@ function ViewPending() {
                       >
                         Ticket Number
                       </th>
+
                       <th
                         scope="col"
                         className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase"
                       >
-                        Employee ID
+                        Requested By
                       </th>
                       <th
                         scope="col"
                         className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase"
                       >
-                        Employee Name
+                        Subject
                       </th>
                       <th
                         scope="col"
@@ -109,8 +110,8 @@ function ViewPending() {
                         <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">
                           {ticket.ticketNum}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.empId}</td>
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.reqBy}</td>
+                        <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.subject}</td>
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.status}</td>
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap ">
                           <button className='flex items-center text-cyan-700 rounded hover:bg-slate-200' onClick={() => handleTicketClick(ticket.ticketNum)}>Update
@@ -132,7 +133,7 @@ function ViewPending() {
     </div>
 
       {/* Render the pagination component */}
-      {ticketData && (
+      {ticketData && ticketData.length===0 ? <p></p> : (
         <div className="pagination-container mb-[20px]">
           <Pagination pageCount={pageCount} onPageChange={handlePageChange} />
         </div>

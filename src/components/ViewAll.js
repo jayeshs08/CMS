@@ -80,6 +80,7 @@ function ViewAll() {
                       >
                         Ticket status
                       </th>
+                      
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -89,7 +90,7 @@ function ViewAll() {
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.empId}</td>
                         <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.reqBy}</td>
                         <td className={`px-6 py-4 text-sm text-gray-800 whitespace-nowrap ${
-                          ticket.status === 'Pending' ? 'font-bold font-serif text-red-400' : 'font-serif font-bold text-green-500'
+                          ticket.status === 'Pending' ? 'font-bold font-serif text-red-400': ticket.status==='Done'?'font-bold font-serif text-green-500' : 'font-serif font-bold text-amber-500'
                         }`}>{ticket.status}</td>
                       </tr>
                     ))}

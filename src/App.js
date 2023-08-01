@@ -18,9 +18,14 @@ import Protected from './components/Protected';
 import ResolverViewAll from './components/ResolverViewAll';
 import Forgot from './components/Forgot';
 import ForgotPassword from './components/ForgotPassword';
+import Escalate from './components/Escalate';
+import EditForm from './components/EditForm';
+import ViewHistory from './components/ViewHistory';
+import AssignHistory from './components/AssignHistory';
 
 function App() {
   const {isAuthenticated} = useUserContext();
+  const [showModal, setShowModal] = useState(false);
   return (
 
     <Router>
@@ -41,9 +46,22 @@ function App() {
           <Route exact path="/viewstatus" element={
           <Protected isAuthenticated={isAuthenticated}>
           <Header/>
-          <ViewStatus/>
+          <ViewStatus setShowModal={setShowModal}/>
           </Protected>
           } />
+
+          <Route exact path="/editform" element={
+          <Protected isAuthenticated={isAuthenticated}>
+          <Header/>
+          <EditForm/>
+          </Protected>
+          } />
+          <Route exact path="/viewhistory" element={
+          <Protected isAuthenticated={isAuthenticated}>
+          <Header/>
+          <ViewHistory/>
+          </Protected>
+          } />  
 
 
           <Route exact path="/login" element={
@@ -76,7 +94,7 @@ function App() {
 
           <Route exact path="/issuedescription" element={
           <Protected isAuthenticated={isAuthenticated}>
-          <Header/>
+          <AdminHeader/>
           <IssueDescription/>
           </Protected>
           } />
@@ -90,16 +108,27 @@ function App() {
 
           <Route exact path="/forgotpassword" element={
           <Protected isAuthenticated={isAuthenticated}>
+          <AdminHeader/>
           <ForgotPassword/>
           </Protected>
           } 
           />
 
-<Route exact path="/forgot" element={
+          <Route exact path="/forgot" element={
           <>
           <Forgot/>
-          
           </>
+          } />
+          <Route exact path="/assignhistory" element={
+          <>
+          <AssignHistory showModal={showModal} setShowModal={setShowModal} />
+          </>
+          } />
+          <Route exact path="/escalate" element={
+          <Protected isAuthenticated={isAuthenticated}>
+          <ResolverHeader/>
+          <Escalate/>
+          </Protected>
           } />
 
         </Routes>

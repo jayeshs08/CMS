@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast, {Toaster} from 'react-hot-toast';
 import { useUserContext } from './UserContext'; // Import the useUserContext hook
-
+import { nanoid } from 'nanoid';
  
 
 export default function InputForm() {
@@ -11,6 +11,7 @@ export default function InputForm() {
   const [reqBy, setReqBy] = useState('');
   const [reqType, setReqType] = useState('');
   const [description, setDescription] = useState('');
+  const [subject, setSubject] = useState('');
   const [reqCategory, setReqCategory] = useState('');
   const [ticketNum, setTicketNum] = useState('');
   const [emailId,setEmailId]=useState('');
@@ -62,6 +63,10 @@ export default function InputForm() {
     setDescription(e.target.value);
   };
 
+  const handlesubjectchange = (e)=>{
+    setSubject(e.target.value);
+  }
+
   const handlereqcategory = (e) => {
     setReqCategory(e.target.value);
   };
@@ -110,6 +115,10 @@ export default function InputForm() {
     {
       toast.error("Invalid Phone number");
     }
+    else if(subject ==="" || !subject)
+    {
+      toast.error("Please enter subject");
+    }
     else {
     // Create an object with the form data
     const requestData = {
@@ -121,7 +130,8 @@ export default function InputForm() {
       description,
       reqCategory,
       phoneNo,
-      status
+      status,
+      subject
     };
   
     // Send an HTTP POST request to the backend API endpoint
@@ -137,6 +147,7 @@ export default function InputForm() {
         setReqCategory('');
         setEmailId('');
         setPhoneNo('');
+        setSubject('');
         const generatedTicketNum = generateticketnum();
         setTicketNum(generatedTicketNum);
       })
@@ -148,14 +159,15 @@ export default function InputForm() {
   };
 
   const generateticketnum = () => {
-    // Generate the token number logic goes here
-    // Example: You can generate a random alphanumeric string or use a timestamp-based approach
-    //return Math.random().toString(36).substring(2, 8).toUpperCase();
-    const today = new Date();
-    const dateString = today.toISOString().slice(0, 10).replace(/-/g, ''); // Get today's date in the format "YYYYMMDD"
-    const randomString = Math.random().toString(36).substring(2, 8).toUpperCase(); // Generate random string
-    const token = dateString + randomString;
-    return token;
+    // Generate a random alphanumeric string of length 6
+    const randomString = nanoid(3).toUpperCase();
+  
+    // Combine the random string and a short timestamp (based on current time)
+    const timestamp = Date.now().toString(36).toUpperCase().slice(-3);
+  
+    // Combine the random string and timestamp to create the ticket number
+    const ticketNumber = randomString + timestamp;
+    return ticketNumber;
   };
 
   return (
@@ -277,7 +289,22 @@ export default function InputForm() {
                   <option>TELECOM</option>
                 </select>
               </div>
-            </div>            
+            </div>    
+            <div className="sm:col-span-3">
+              <label htmlFor="subject" className="block text-sm font-medium leading-6 text-gray-900">
+                Subject
+              </label>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  name="subject"
+                  className="block w-full bg-transparent rounded-md border-0 py-1.5 pl-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  placeholder='Subject'
+                  value={subject}
+                  onChange={handlesubjectchange} 
+                />
+              </div>
+            </div>        
           </div>
         </div>
 

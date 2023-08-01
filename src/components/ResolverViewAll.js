@@ -10,30 +10,6 @@ export default function ResolverViewAll()
   const [resData, setResData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewClicked, setViewClicked] = useState(false);
-
-  // useEffect(()=>{
-  //   console.log("userdata resolver:");
-  //   console.log(userData);
-
-  //   const resId=userData[0].resId;
-
-  //   if(userData && userData[0].resId){
-  //   setLoading(true);
-
-  // axios.post('http://localhost:5000/api/resolver', { resId })
-  //   .then(response => {
-  //     // Set the fetched data in resData state
-  //     console.log("resolver sent request");
-  //     setResData(response.data.data);
-  //     setLoading(false);
-  //   })
-  //   .catch(error => {
-  //     console.log("Error in fetching data from resolver API");
-  //     setLoading(false);
-  //   });
-  // }
-
-  // },[userData])
   
   useEffect(() => {
     console.log("userdata resolver:");
@@ -72,6 +48,7 @@ export default function ResolverViewAll()
       console.log("Error in executing view button in resolver");
     })
   };
+  
   const handleClickComplete = (ticketNum) => {
     console.log(ticketNum);
     setViewClicked(false);
@@ -83,7 +60,7 @@ export default function ResolverViewAll()
           <div >LOADING . . . . </div>
           ):
             resData.length===0 ?<p className='mt-[5%] mx-[10%]'>You have no active tickets to resolve. </p> :( 
-    <div className="flex flex-col mt-[5%] mx-[10%]">
+    <div className="flex flex-col mt-[2%] mx-[10%]">
       <div className="overflow-x-auto">
         <div className="p-1.5 w-full inline-block align-middle">
           <div className="overflow-x-scroll lg:overflow-hidden border rounded-lg">
@@ -95,6 +72,12 @@ export default function ResolverViewAll()
                     className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                   >
                     Ticket Number
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
+                  >
+                    Subject
                   </th>
                   <th
                     scope="col"
@@ -114,6 +97,7 @@ export default function ResolverViewAll()
               {resData.map(ticket => (
                 <tr key={ticket.ticketNum}>
                   <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">{ticket.ticketNum}</td>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap">{ticket.subject}</td>
                   {/* <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{ticket.status}</td> */}
                   <td className={`px-6 py-4 text-sm text-gray-800 whitespace-nowrap ${
                           ticket.status === 'Pending' ? 'font-bold font-serif text-red-400': ticket.status==='Done'?'font-bold font-serif text-green-500' : 'font-serif font-bold text-amber-500'
@@ -220,15 +204,6 @@ export default function ResolverViewAll()
         </div>   
 
         <div className="mt-6 flex items-center justify-end gap-x-6">
-        {/* {ticketData.map(ticket =>(
-        <button key={ticket.ticketNum}
-          type="submit"
-          className="rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          onClick={()=>handleClickComplete(ticket.ticketNum)}
-        >
-          Save
-        </button>
-        ))} */}
          {ticketData.map((ticket) => (
               <button
                 key={ticket.ticketNum}

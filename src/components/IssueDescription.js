@@ -12,6 +12,7 @@ function IssueDescription() {
   const [secondSelectedOption, setSecondSelectedOption] = useState('');
   const [resolverId, setResolverId] = useState('');
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(true);
 
   useEffect(() => {
     const ticketNum = location.state?.ticketNum;
@@ -33,6 +34,7 @@ function IssueDescription() {
     }
   }, [location]);
 
+  
   const handleFirstDropdownChange = (event) => {
     const selectedValue = event.target.value;
     setFirstSelectedOption(selectedValue);
@@ -60,6 +62,7 @@ function IssueDescription() {
     setSecondSelectedOption(selectedValue);
   };
 
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -80,18 +83,30 @@ function IssueDescription() {
         console.error('Error updating issue:', error);
         // Handle the error case
       });
-      
-      navigate('/viewall');
+    closeModal(); // Close the modal after submitting the form
+    navigate('/viewall');
   };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleBackClick = () => {
+    navigate('/viewpending');
+  };
+
   return (
     <div className='issuedescription h-[420px]'>
+    {isModalOpen && (
+    <div className='fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center'>
+      <div className='bg-white p-6 rounded-lg max-w w-[70%] '>
       <h1 className='font-bold text-left mt-[2%] mx-[11%]'>Issue Description</h1>
       {ticketDetails ? (
         <div>
           <div className="flex flex-col mt-[1%] mx-[10%]">
             <div className="overflow-x-auto">
-              <div className="p-1.5 w-full inline-block align-middle">
-                <div className="overflow-hidden border rounded-lg">
+              <div className="p-1.5 w-full inline-block align-middle overflow-x-scroll">
+                <div className=" border rounded-lg ">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
@@ -216,12 +231,22 @@ function IssueDescription() {
         >
           Save
         </button>
+        <button
+        type="button"
+        className="rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        onClick={handleBackClick}
+        >
+          Back
+        </button>
       </div>
           </div>
         </div>
       ) : (
         <p>{error || 'Loading ticket details...'}</p>
       )}
+      </div>
+    </div>
+    )} 
     </div>
   );
 }
