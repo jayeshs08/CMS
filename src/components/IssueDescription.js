@@ -83,6 +83,25 @@ function IssueDescription() {
         console.error('Error updating issue:', error);
         // Handle the error case
       });
+
+      //sending values to Ticket History
+      const action = "Current";
+
+      axios
+      .post('http://localhost:5000/api/update-historytb', { ticketNum, assignto, action})
+      .then(response => {
+        console.log('Ticket History Table updated successfully:');
+        // Handle the success case
+      })
+      .catch(error => {
+        console.error('Error updating historytb');
+        // Handle the error case
+      });
+      
+
+
+
+
     closeModal(); // Close the modal after submitting the form
     navigate('/viewall');
   };

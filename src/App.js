@@ -21,7 +21,7 @@ import ForgotPassword from './components/ForgotPassword';
 import Escalate from './components/Escalate';
 import EditForm from './components/EditForm';
 import ViewHistory from './components/ViewHistory';
-import AssignHistory from './components/AssignHistory';
+import HistoryView from './components/HistoryView';
 
 function App() {
   const {isAuthenticated} = useUserContext();
@@ -60,6 +60,12 @@ function App() {
           <Protected isAuthenticated={isAuthenticated}>
           <Header/>
           <ViewHistory/>
+          </Protected>
+          } />  
+          <Route exact path="/historyview" element={
+          <Protected isAuthenticated={isAuthenticated}>
+          <Header/>
+          <HistoryView/>
           </Protected>
           } />  
 
@@ -117,11 +123,6 @@ function App() {
           <Route exact path="/forgot" element={
           <>
           <Forgot/>
-          </>
-          } />
-          <Route exact path="/assignhistory" element={
-          <>
-          <AssignHistory showModal={showModal} setShowModal={setShowModal} />
           </>
           } />
           <Route exact path="/escalate" element={

@@ -7,7 +7,6 @@ import {Link} from 'react-router-dom'
 const navigation = [
   { name: 'View All', to: "/resolverviewall", current: false},
   { name: 'View  Pending', to: "/resolver", current: false },
-  { name: 'ESCALATE', to:"/escalate", current: false}
 ]
 
 function classNames(...classes) {

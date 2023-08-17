@@ -17,13 +17,13 @@ app.use(cors());
 // Define an API endpoint to create a request
 // Define an API endpoint to create a request
 app.post('/api/requests', (req, res) => {
-  const {ticketNum,userId, reqBy, emailId,reqType, description, reqCategory, phoneNo,status, subject } = req.body;
+  const {ticketNum,userId, reqBy, emailId,reqType, description, reqCategory, phoneNo,status,subject } = req.body;
 
   // Perform validation if necessary
 
   // Execute the MySQL query
-  const query = `INSERT INTO issueTB (ticketNum, empId, reqBy, emailId, reqType, description, reqCategory, dateTimeTicket, phoneNo, status, subject) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, now(), ?, ?, ?)`;
+  const query = `INSERT INTO issueTB (ticketNum, empId, reqBy, emailId, reqType, description, reqCategory, dateTimeTicket, phoneNo, status,subject) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, now(), ?, ? , ?)`;
 
   pool.getConnection((err, connection) => {
     if (err) {
@@ -42,8 +42,8 @@ app.post('/api/requests', (req, res) => {
       }
 
       res.json({ message: 'Request submitted successfully' });
-    });
-  });
+    });
+  });
 });
 
 app.post('/api/editrequests', (req, res) => {
@@ -74,35 +74,6 @@ app.post('/api/editrequests', (req, res) => {
     });
   });
 });
-
-// //fetching ticket status
-// // Define an API endpoint to fetch ticket status
-// app.post('/api/fetch', (req, res) => {
-//   const { ticketNum } = req.body;
-
-//   // Execute the MySQL query
-//   const query = `SELECT * FROM issueTB WHERE ticketNum = ?`;
-
-//   pool.getConnection((err, connection) => {
-//     if (err) {
-//       console.error('Error connecting to MySQL database:', err);
-//       res.status(500).json({ error: 'Error fetching ticket status' });
-//       return;
-//     }
-
-//     connection.query(query, [ticketNum], (err, result) => {
-//       connection.release(); // Release the connection back to the pool
-
-//       if (err) {
-//         console.error('Error executing MySQL query:', err);
-//         res.status(500).json({ error: 'Error in sql' });
-//         return;
-//       }
-
-//       res.json({ data: result });
-//     });
-//   });
-// });
 
 app.post('/api/fetchall', (req,res)=>{
   const {userId} = req.body;
@@ -286,6 +257,170 @@ app.post('/api/resolver', (req,res)=>{
   })
 })
 
+// app.post('/api/updateHistoryStatus', (req, res) => {
+//   const { ticketNum, action, actionEsc, assign, resName, resId } = req.body;
+
+//   console.log(assign);
+  
+//   // Update assignTo and assignToTime for the NULL assignTo rows
+//   const updateAssignToQuery = 'UPDATE historytb SET assignToTime = NOW(), action = ? WHERE ticketNum = ? AND assignToTime IS NULL ';
+
+//   // Insert into historytb
+//   const insertHistoryQuery = 'INSERT INTO historytb (ticketNum, assignBy, assignByTime, assignTo, action) VALUES (?, ?, NOW(), ?, "Current")';
+//   const getResIdQuery = 'SELECT resId FROM resolver WHERE resName = ?';
+//   const updateIssueQuery = 'UPDATE issuetb SET assignTo=? where ticketNum = ?';
+//   pool.getConnection((err, connection) => {
+//     if (err) {
+//       console.error('Error connecting to DB:', err);
+//       return res.status(500).json({ success: false, message: 'Error connecting to DB' });
+//     }
+
+//     connection.query(
+//       getResIdQuery,
+//       [ assign],
+//       (err, results) => {
+//         if (err) {
+//           connection.release();
+//           console.error('Error updating issuetb with new resolver:', err);
+//           return res.status(500).json({ success: false, message: 'Error updating issuetb with new resolver' });
+//         }
+//         if (results.length > 0) {
+//           const fetchedId = results[0].resId; // Assuming the field name is "resId"
+//           // Now you can use the resId variable as needed
+//           console.log('Retrieved resId:', resId);
+//         } else {
+//           console.log('No results found for the query.');
+//         }
+    
+//         connection.release();
+//       })
+
+//     //update issuetb with new resolver
+//     connection.query(
+//       updateIssueQuery,
+//       [ fetchedId, ticketNum],
+//       (err) => {
+//         if (err) {
+//           connection.release();
+//           console.error('Error updating issuetb with new resolver:', err);
+//           return res.status(500).json({ success: false, message: 'Error updating issuetb with new resolver' });
+//         }})
+
+//     // Update assignToTime and action for NULL assignTo rows
+//     connection.query(
+//       updateAssignToQuery,
+//       [ actionEsc, ticketNum],
+//       (err) => {
+//         if (err) {
+//           connection.release();
+//           console.error('Error updating historytb:', err);
+//           return res.status(500).json({ success: false, message: 'Error updating historytb' });
+//         }
+
+//         // Insert into historytb with provided resName and assign value
+//         connection.query(
+//           insertHistoryQuery,
+//           [ticketNum, resName, assign],
+//           (err) => {
+//             connection.release();
+
+//             if (err) {
+//               console.error('Error inserting into historytb:', err);
+//               return res.status(500).json({ success: false, message: 'Error inserting into historytb' });
+//             }
+
+//             res.status(200).json({ success: true, message: 'History updated successfully' });
+//           }
+//         );
+//       }
+//     );
+//   });
+// });
+app.post('/api/updateHistoryStatus', (req, res) => {
+  const { ticketNum, action, actionEsc, assign, resName, resId } = req.body;
+
+  console.log(assign);
+  
+  // Update assignTo and assignToTime for the NULL assignTo rows
+  const updateAssignToQuery = 'UPDATE historytb SET assignToTime = NOW(), action = ? WHERE ticketNum = ? AND assignToTime IS NULL ';
+
+  // Insert into historytb
+  const insertHistoryQuery = 'INSERT INTO historytb (ticketNum, assignBy, assignByTime, assignTo, action) VALUES (?, ?, NOW(), ?, "Current")';
+  const getResIdQuery = 'SELECT resId FROM resolver WHERE resName = ?';
+  const updateIssueQuery = 'UPDATE issuetb SET assignTo=? WHERE ticketNum = ?';
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error connecting to DB:', err);
+      return res.status(500).json({ success: false, message: 'Error connecting to DB' });
+    }
+
+    connection.query(
+      getResIdQuery,
+      [assign],
+      (err, results) => {
+        if (err) {
+          connection.release();
+          console.error('Error fetching resId:', err);
+          return res.status(500).json({ success: false, message: 'Error fetching resId' });
+        }
+        
+        if (results.length > 0) {
+          const fetchedId = results[0].resId; // Assuming the field name is "resId"
+          console.log('Retrieved resId:', fetchedId);
+
+          // Update issuetb with new resolver
+          connection.query(
+            updateIssueQuery,
+            [fetchedId, ticketNum],
+            (err) => {
+              if (err) {
+                connection.release();
+                console.error('Error updating issuetb with new resolver:', err);
+                return res.status(500).json({ success: false, message: 'Error updating issuetb with new resolver' });
+              }
+
+              // Update assignToTime and action for NULL assignTo rows
+              connection.query(
+                updateAssignToQuery,
+                [actionEsc, ticketNum],
+                (err) => {
+                  if (err) {
+                    connection.release();
+                    console.error('Error updating historytb:', err);
+                    return res.status(500).json({ success: false, message: 'Error updating historytb' });
+                  }
+
+                  // Insert into historytb with fetched resName and assign value
+                  connection.query(
+                    insertHistoryQuery,
+                    [ticketNum, resName, assign],
+                    (err) => {
+                      connection.release();
+
+                      if (err) {
+                        console.error('Error inserting into historytb:', err);
+                        return res.status(500).json({ success: false, message: 'Error inserting into historytb' });
+                      }
+
+                      res.status(200).json({ success: true, message: 'History updated successfully' });
+                    }
+                  );
+                }
+              );
+            }
+          );
+        } else {
+          console.log('No results found for the query.');
+          connection.release();
+          return res.status(404).json({ success: false, message: 'No results found for the query' });
+        }
+      }
+    );
+  });
+});
+
+
 app.post('/api/resolverviewall', (req,res)=>{
   const {resId} = req.body;
   console.log("Res id:");
@@ -313,7 +448,6 @@ app.post('/api/resolverviewall', (req,res)=>{
     })
   })
 })
-
 app.post('/api/resolvedata', (req,res)=>{
   const {ticketNum} = req.body;
 
@@ -382,6 +516,29 @@ app.get('/api/options', (req, res) => {
   });
 });
 
+// API endpoint for fetching ticket history
+app.get('/api/tickethistory/:ticketNum', (req, res) => {
+  const { ticketNum } = req.params;
+
+  // Execute the MySQL query to fetch ticket details based on ticketNum
+  const query = `SELECT * FROM historytb WHERE ticketNum = '${ticketNum}'`;
+
+  pool.query(query, (err, result) => {
+    if (err) {
+      console.error('Error executing MySQL query:', err);
+      res.status(500).json({ error: 'Error fetching ticket details' });
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return;
+    }
+    console.log(result);
+    res.json({data:result});
+  });
+});
+
 // Update the 'assignto' column in the issuetb table
 app.post('/api/update-issue', (req, res) => {
   const { ticketNum, status, assignto } = req.body;
@@ -430,6 +587,23 @@ app.post('/api/userdata', (req,res) => {
   }
   })
 })
+
+app.post('/api/update-historytb', (req, res) => {
+  const { ticketNum, assignto,action } = req.body;
+
+  const query = 'INSERT INTO historytb VALUES (?,"Admin",now(),?,null,?)'
+  pool.query(query,[ticketNum,assignto,action], (error,results)=> {
+    if(error)
+    {
+      console.log("Error in executing sql query (historytb)");
+    }
+    else{
+      console.log("Data updated to historytb successffully");
+    }
+  })
+  
+  
+});
 
 app.post('/api/admindata', (req,res) => {
   const {userMail} = req.body;
