@@ -79,9 +79,10 @@ app.post('/api/fetchall', (req,res)=>{
   const {userId} = req.body;
   const stat1="Active";
   const stat2="Pending";
+  const stat3="Done"
   console.log("Res id:");
   console.log(userId);
-  const query = 'SELECT * FROM issueTB WHERE emailId = ?  AND status=? OR status=? ORDER BY resolvedTime DESC;' ;
+  const query = 'SELECT * FROM issueTB WHERE emailId = ?  AND status=? OR status=? OR status=? ORDER BY resolvedTime DESC;' ;
   pool.getConnection((err, connection) =>{
     if(err){
       console.log("Error connecting to db");
@@ -89,7 +90,7 @@ app.post('/api/fetchall', (req,res)=>{
       return;
     }
 
-    connection.query(query, [userId,stat1,stat2], (err,result) => {
+    connection.query(query, [userId,stat1,stat2,stat3], (err,result) => {
       connection.release();
 
       if(err)
@@ -669,9 +670,7 @@ app.post('/api/delete', (req,res)=>{
   })
 })
 
-
-//update status to done by resolver
-app.post('/api/updateStatus', (req,res)=>{
+app.post('/api/updateStatusIssue', (req,res)=>{
   const {ticketNum,status} = req.body;
 
   // const query = 'SELECT * FROM issueTB WHERE ticketNum = ?;' ;
@@ -697,6 +696,107 @@ app.post('/api/updateStatus', (req,res)=>{
     })
   })
 })
+
+
+app.post('/api/updateStatus', (req, res) => {
+  const { ticketNum, status } = req.body;
+
+  const query = 'UPDATE issuetb SET status = ?, resolvedTime = NOW() WHERE ticketNum = ?;';
+  const queryDone = 'UPDATE historytb SET action = "Completed", assignToTime = NOW() WHERE ticketNum = ? AND assignToTime IS NULL;';
+  const queryCancel = 'UPDATE historytb SET action = "Cancelled", assignToTime = NOW() WHERE ticketNum = ? AND assignToTime IS NULL;';
+
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error connecting to DB:', err);
+      res.status(500).json({ error: 'Error connecting to DB' });
+      return;
+    }
+
+    if (status === 'Done') {
+      connection.query(queryDone, [ticketNum], (err, result) => {
+        if (err) {
+          connection.release();
+          console.error('Error executing sql queryDone:', err);
+          res.status(500).json({ error: 'Error in executing queryDone' });
+          return;
+        }
+        connection.release();
+        res.json({ data: result });
+      });
+    } else if (status === 'Cancelled') {
+      connection.query(queryCancel, [ticketNum], (err, result) => {
+        if (err) {
+          connection.release();
+          console.error('Error executing sql queryCancel:', err);
+          res.status(500).json({ error: 'Error in executing queryCancel' });
+          return;
+        }
+        connection.release();
+        res.json({ data: result });
+      });
+    } 
+  });
+});
+
+
+//update status to done by resolver
+// app.post('/api/updateStatusissue', (req,res)=>{
+//   const {ticketNum,status} = req.body;
+
+//   // const query = 'SELECT * FROM issueTB WHERE ticketNum = ?;' ;
+//   const query = 'UPDATE issuetb SET status= ?, resolvedTime= NOW() WHERE ticketNum = ?;' ;
+//   const queryDone = 'update historytb set action="Completed", assignToTime= NOW() where ticketNum=? and assignToTime is null;';
+//   const queryCancel = 'update historytb set action= "Cancelled", assignToTime = NOW() where ticketNum=? and assignToTime is null;';
+//   pool.getConnection((err, connection) =>{
+//     if(err){
+//       console.log("Error connecting to db");
+//       res.status(500).json({error: 'Error connecting to DB'});
+//       return;
+//     }
+//     if (status==='Done')
+//     {
+//       connection.query(queryDone, [ticketNum], (err,result) => {
+  
+//         if(err)
+//         {
+//           console.log("error in executing sql queryDone");
+//           res.status(500).json({error: 'Error in executing query'});
+//           return;
+//         }
+  
+//         res.json({data:result});
+//       })
+//     }
+//     else if(status==='Cancelled')
+//     {
+//       connection.query(queryCancel, [ticketNum], (err,result) => {
+//         connection.release();
+  
+//         if(err)
+//         {
+//           console.log("error in executing sql queryCancel");
+//           res.status(500).json({error: 'Error in executing query'});
+//           return;
+//         }
+  
+//         res.json({data:result});
+//       })
+//     }
+//     connection.query(query, [status,ticketNum], (err,result) => {
+//       connection.release();
+
+//       if(err)
+//       {
+//         console.log("error in executing sql query");
+//         res.status(500).json({error: 'Error in executing query'});
+//         return;
+//       }
+
+//       res.json({data:result});
+//     })
+
+//   })
+// })
 app.post('/api/reset_password', (req, res) => {
   const { email, password } = req.body;
   console.log("in reset password endpoint");

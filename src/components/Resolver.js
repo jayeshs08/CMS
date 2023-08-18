@@ -69,6 +69,23 @@ export default function Resolver()
       .catch((error) => {
         console.log('Error in executing view button in resolver');
       });
+
+      axios
+      .post('http://localhost:5000/api/updateStatusIssue', { ticketNum,status})
+      .then((response) => {
+        console.log('ticket click executed in resolve');
+  
+        const updatedTicket = response.data.data;
+        setTicketData((prevTicketData) =>
+          prevTicketData.map((ticket) =>
+            ticket.ticketNum === updatedTicket.ticketNum ? updatedTicket : ticket
+          )
+        );
+        setViewClicked(false);
+      })
+      .catch((error) => {
+        console.log('Error in executing view button in resolver');
+      });
   }
 
   const handleCancel=(ticketNum)=>{

@@ -1,0 +1,104 @@
+INSTALLATIONS:
+
+1. Visual Studio Code Editor (or any code editor like 'Atom' etc.)
+2. Node JS
+3. MySQL
+4. MySQL Workbench
+
+PRE-REQUISITE BEFORE USING THE APPLICATION:
+
+1. After installing MySQL Database, create the necessary database "ticketDB" and tables.
+
+2. Schema for the tables used in the database: 
+
+Table: admintb
+Columns:
+adminName varchar(30) 
+adminId varchar(30) 
+adminEmail varchar(30)
+
+Table: historytb
+Columns:
+ticketNum varchar(30) 
+assignBy varchar(30) 
+assignByTime datetime 
+assignTo varchar(30) 
+assignToTime datetime 
+action varchar(30)
+
+Table: issuetb
+Columns:
+ticketNum varchar(30) 
+empId varchar(20) 
+reqBy varchar(50) 
+emailId varchar(50) 
+reqType varchar(20) 
+reqCategory varchar(50) 
+description varchar(50) 
+dateTimeTicket datetime 
+phoneNo varchar(20) 
+status varchar(20) 
+assignTo varchar(30) 
+resolvedTime datetime 
+subject varchar(50)
+
+Table: login
+Columns:
+email varchar(50) 
+password varchar(20) 
+role int
+
+Table: resolver
+Columns:
+resName varchar(30) 
+resId varchar(30) 
+resLevel varchar(10) 
+resCount int 
+resEmail varchar(30)
+
+Table: tickettb
+Columns:
+empid varchar(20) 
+ticketnum varchar(30) 
+reqby varchar(30) 
+reqtype varchar(30) 
+description varchar(255) 
+typeticket varchar(20) 
+datetimeticket datetime
+
+Table: usertb
+Columns:
+userName varchar(30) 
+userId varchar(30) 
+userEmail varchar(30)
+
+GENERAL SQL QUERIES: 
+create table tablename(columnname DATATYPE, columnname DATATYPE, .....);
+
+PROCEDURES:
+
+1. Open the project folder inside the code editor.
+
+2. Open terminal inside code editor (option given in the menubar at the top of the screen).
+
+3. Write "npm install" and hit enter. Wait for the installations to be completed. This step
+   will install the necessary files required in the root directory of the project.
+
+4. Write "cd server" -> hit enter -> write "npm install" -> hit enter -> write "cd .." -> hit enter -> write "cd client" ->hit enter -> write "npm install"
+   This step installed the necessary files required for the client and server side of the web application.
+
+5. Go to the client folder using "cd client" and execute "npm start".
+   This will start the react development server, that is the front end of the application.
+
+6. Open another terminal, and go to the server folder and execute "node server.js". This will initiate the server.
+
+7. The web application should start in the default browser.
+
+8. In the server.js file, the top of the program defines connectivity with the database. Modify it for your MySQL credentials.
+
+9. Generate logins in the database according to the schema, for Admins, Resolvers, Users.
+
+10. Now the Complain Management System is ready to use. 
+	- Admins can view all the tickets, and assign them to different resolvers.
+	- Users can generate tickets and view the history of their tickets.
+	- Resolvers can view details of each ticket and then discard it, complete it or escalate it.
